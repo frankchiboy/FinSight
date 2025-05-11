@@ -1,4 +1,8 @@
-from analysis_engine import ticker, start_date, end_date, avg_price, rsi, macd, ma_gap
+from analysis_engine import (
+    ticker, start_date, end_date,
+    avg_price, rsi, macd, ma_gap,
+    boll_up, boll_down, williams_r, k, d, obv, cci, adl
+)
 import requests
 import math
 
@@ -16,6 +20,12 @@ prompt = f"""
 - RSI：{safe_format(rsi)}
 - MACD：{safe_format(macd)}
 - 20 日均線乖離率：{safe_format(ma_gap, '%')}
+- 布林通道：上={safe_format(boll_up)} / 下={safe_format(boll_down)}
+- Williams %R：{safe_format(williams_r)}
+- KD值：K={safe_format(k)}, D={safe_format(d)}
+- OBV：{safe_format(obv)}
+- CCI：{safe_format(cci)}
+- ADL：{safe_format(adl)}
 
 請專業分析此股目前趨勢。
 """
