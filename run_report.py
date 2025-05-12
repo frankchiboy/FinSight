@@ -37,7 +37,7 @@ print(prompt)
 def query_llama(prompt):
     url = "http://localhost:11434/api/generate"
     data = {
-        "model": "llama3.3",
+        "model": "llama4",
         "prompt": prompt,
         "stream": False
     }
