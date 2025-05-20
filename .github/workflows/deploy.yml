@@ -1,0 +1,22 @@
+name: Deploy to MacStudio
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd /Users/servera/finsight-prod
+          git pull origin main
+          pkill streamlit || true
+          nohup streamlit run run_report.py > streamlit.log 2>&1 &
