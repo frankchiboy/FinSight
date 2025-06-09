@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import logging
 import datetime
+import os
 import requests
 
 # Configure logging at INFO level for terminal output
@@ -133,24 +134,27 @@ def get_technical_indicators(ticker, start_date, end_date):
         "adl": adl,
     }
 
-def query_llama(prompt):
-    url = "http://localhost:11434/api/generate"
+def query_llama(prompt, model="llama4"):
+    """Query a Hugging Face model and return the generated text."""
+    token = os.environ.get("HUGGING_FACE_HUB_TOKEN")
+    headers = {"Authorization": f"Bearer {token}"} if token else {}
+    api_url = f"https://api-inference.huggingface.co/models/{model}"
     payload = {
-        "model": "llama4",
-        "prompt": prompt,
-        "stream": False
+        "inputs": prompt,
+        "options": {"wait_for_model": True},
     }
     try:
-        res = requests.post(url, json=payload)
-        res_json = res.json()
-        if "response" in res_json:
-            return res_json["response"]
-        elif "error" in res_json:
-            raise RuntimeError(f"LLaMA model error: {res_json['error']}")
-        else:
-            raise KeyError(f"Missing 'response' field in result: {res_json}")
+        res = requests.post(api_url, headers=headers, json=payload, timeout=60)
+        res.raise_for_status()
+        data = res.json()
+        # Response can be a list of generated text dictionaries
+        if isinstance(data, list) and data and "generated_text" in data[0]:
+            return data[0]["generated_text"]
+        if "error" in data:
+            raise RuntimeError(f"HuggingFace error: {data['error']}")
+        raise ValueError(f"Unexpected response format: {data}")
     except Exception as e:
-        logging.error(f"Error querying LLaMA model: {e}")
+        logging.error(f"Error querying HuggingFace model: {e}")
         return str(e)
 
 if __name__ == "__main__":

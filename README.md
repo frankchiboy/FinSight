@@ -1,8 +1,8 @@
-# 📈 FinSight – AI-Powered Technical Analysis MVP (LLaMA + CLI + Streamlit)
+# 📈 FinSight – AI-Powered Technical Analysis MVP (LLaMA via Hugging Face)
 
 ## 🚀 Overview
 
-FinSight is a local-first tool that calculates technical indicators for stocks and generates concise investment summaries using a self-hosted LLaMA model. It supports both command-line and web-based interfaces.
+FinSight is a tool that calculates technical indicators for stocks and generates concise investment summaries using a LLaMA model hosted on Hugging Face. It supports both command-line and web-based interfaces.
 
 ## 📦 Features
 
@@ -11,14 +11,14 @@ FinSight is a local-first tool that calculates technical indicators for stocks a
   - RSI, MACD, Bollinger Bands, OBV, CCI, KD, Williams %R, MA deviation, ADL
 - Uses LLaMA to generate 2–3 line investment insights
 - Saves reports to `.txt` files
-- Runs offline locally, fully private
+- Uses the Hugging Face Inference API for text generation
 
 ## 🧰 Tech Stack
 
 - Python 3.9+
 - yfinance, pandas, numpy
 - Streamlit (for UI)
-- Ollama (LLaMA3 / LLaMA4)
+- Hugging Face Inference API (LLaMA model)
 
 ## 🧪 Usage
 
@@ -54,7 +54,7 @@ streamlit run run_report.py
 
 ## 🧠 Notes
 
-- Ensure Ollama is installed and LLaMA model is running locally before execution
+- Set the `HUGGING_FACE_HUB_TOKEN` environment variable to access the Hugging Face API
 - CLI and UI share the same analysis backend
 
 ## 👤 Author
