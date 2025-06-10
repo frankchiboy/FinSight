@@ -138,8 +138,10 @@ def query_llama(prompt, model="meta-llama/llama-4-scout:free"):
     """Query the LLaMA model via OpenRouter and return the generated text."""
     token = os.environ.get("OPENROUTER_API_KEY")
     if not token:
-        logging.error("OPENROUTER_API_KEY environment variable not set")
-        return "API key missing"
+        error_msg = "OPENROUTER_API_KEY environment variable not set"
+        logging.error(error_msg)
+        print(error_msg)  # 在終端機顯示錯誤
+        return error_msg
 
     headers = {
         "Authorization": f"Bearer {token}",
@@ -155,13 +157,39 @@ def query_llama(prompt, model="meta-llama/llama-4-scout:free"):
     }
 
     try:
+        logging.info("Sending request to OpenRouter API...")
+        print("Prompt:", prompt)  # 打印提示詞
+        
         res = requests.post(api_url, headers=headers, json=payload, timeout=60)
-        res.raise_for_status()
+        print(f"Status Code: {res.status_code}")  # 打印狀態碼
+        
+        if res.status_code != 200:
+            error_msg = f"API Error: Status {res.status_code}, Response: {res.text}"
+            print(error_msg)  # 打印錯誤訊息
+            return error_msg
+
         data = res.json()
-        return data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        print("\nAPI Response:", data)  # 打印完整回應
+        
+        if not data.get('choices'):
+            error_msg = "No choices in response"
+            print(error_msg)
+            return error_msg
+            
+        content = data['choices'][0].get('message', {}).get('content', '')
+        print("\nGenerated content:", content)  # 打印生成的內容
+        
+        if not content:
+            error_msg = "Empty content in response"
+            print(error_msg)
+            return error_msg
+            
+        return content
+        
     except Exception as e:
-        logging.error(f"Error querying OpenRouter model: {e}")
-        return str(e)
+        error_msg = f"Error querying API: {str(e)}"
+        print(error_msg)  # 打印例外錯誤
+        return error_msg
 
 if __name__ == "__main__":
     import streamlit as st
