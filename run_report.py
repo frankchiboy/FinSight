@@ -134,27 +134,33 @@ def get_technical_indicators(ticker, start_date, end_date):
         "adl": adl,
     }
 
-def query_llama(prompt, model="llama4"):
-    """Query a Hugging Face model and return the generated text."""
-    token = os.environ.get("HUGGING_FACE_HUB_TOKEN")
-    headers = {"Authorization": f"Bearer {token}"} if token else {}
-    api_url = f"https://api-inference.huggingface.co/models/{model}"
-    payload = {
-        "inputs": prompt,
-        "options": {"wait_for_model": True},
+def query_llama(prompt, model="meta-llama/llama-4-scout:free"):
+    """Query the LLaMA model via OpenRouter and return the generated text."""
+    token = os.environ.get("OPENROUTER_API_KEY")
+    if not token:
+        logging.error("OPENROUTER_API_KEY environment variable not set")
+        return "API key missing"
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://github.com/frankchiboy",  # required by OpenRouter
+        "X-Title": "FinSight",
     }
+
+    api_url = "https://openrouter.ai/api/v1/chat/completions"
+    payload = {
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+    }
+
     try:
         res = requests.post(api_url, headers=headers, json=payload, timeout=60)
         res.raise_for_status()
         data = res.json()
-        # Response can be a list of generated text dictionaries
-        if isinstance(data, list) and data and "generated_text" in data[0]:
-            return data[0]["generated_text"]
-        if "error" in data:
-            raise RuntimeError(f"HuggingFace error: {data['error']}")
-        raise ValueError(f"Unexpected response format: {data}")
+        return data.get("choices", [{}])[0].get("message", {}).get("content", "")
     except Exception as e:
-        logging.error(f"Error querying HuggingFace model: {e}")
+        logging.error(f"Error querying OpenRouter model: {e}")
         return str(e)
 
 if __name__ == "__main__":
