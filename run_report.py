@@ -7,7 +7,7 @@ import os
 import requests
 
 
-os.environ["OPENROUTER_API_KEY"] = "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"
+#os.environ["OPENROUTER_API_KEY"] = "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"
 # Configure logging at INFO level for terminal output
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
